@@ -1,0 +1,9 @@
+{
+  "name": "zain-ai",
+  "version": "1.0.0",
+  "description": "Zain AI - Personal AI Assistant",
+  "type": "module",
+  "dependencies": {
+    "openai": "^7.15.0"
+  }
+}
