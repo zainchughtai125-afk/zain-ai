@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+
+  <title>Zain AI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f7f8;
+      color: #111827;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    .header {
+      height: 60px;
+      background: #111827;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .new-chat {
+      border: 1px solid #4b5563;
+      background: #1f2937;
+      color: white;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* CHAT */
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 12px 120px;
+    }
+
+    .welcome {
+      max-width: 700px;
+      margin: 30px auto;
+      text-align: center;
+    }
+
+    .welcome h1 {
+      margin-bottom: 8px;
+      font-size: 28px;
+    }
+
+    .welcome p {
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .suggestions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      max-width: 600px;
+      margin: 25px auto;
+    }
+
+    .suggestion {
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 13px 10px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .suggestion:hover {
+      background: #f3f4f6;
+    }
+
+    /* MESSAGES */
+    .message-row {
+      width: 100%;
+      display: flex;
+      margin: 12px 0;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-row.ai {
+      justify-content: flex-start;
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 15px;
+    }
+
+    .user .message {
+      background: #111827;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .ai .message {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-bottom-left-radius: 4px;
+    }
+
+    .typing {
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    /* INPUT */
+    .input-area {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(247, 247, 248, 0.97);
+      border-top: 1px solid #ddd;
+      padding: 10px;
+    }
+
+    .input-box {
+      max-width: 850px;
+      margin: auto;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      background: white;
+      border: 1px solid #cfd3da;
+      border-radius: 14px;
+      padding: 8px;
+    }
+
+    textarea {
+      flex: 1;
+      resize: none;
+      border: none;
+      outline: none;
+      min-height: 42px;
+      max-height: 130px;
+      padding: 10px;
+      font-size: 15px;
+      font-family: Arial, sans-serif;
+    }
+
+    .send {
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 10px;
+      background: #111827;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 600px) {
+      .suggestions {
+        grid-template-columns: 1fr;
+      }
+
+      .welcome h1 {
+        font-size: 24px;
+      }
+
+      .message {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header class="header">
+    <div class="logo">Zain AI</div>
+    <button class="new-chat" onclick="newChat()">New Chat</button>
+  </header>
+
+  <main class="chat" id="chat">
+
+    <div class="welcome" id="welcome">
+
+      <h1>How can I help you?</h1>
+
+      <p>
+        I can help with research, SEO, guest posting,
+        local-business prospects, outreach and learning.
+      </p>
+
+      <div class="suggestions">
+
+        <button class="suggestion" onclick="useSuggestion('Find potential guest-posting clients for me')">
+          Find guest-posting clients
+        </button>
+
+        <button class="suggestion" onclick="useSuggestion('Research a local business and identify its website and SEO opportunities')">
+          Research a local business
+        </button>
+
+        <button class="suggestion" onclick="useSuggestion('Write a short professional client outreach message')">
+          Write client outreach
+        </button>
+
+        <button class="suggestion" onclick="useSuggestion('Find SEO opportunities for a business website')">
+          Find SEO opportunities
+        </button>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div class="input-area">
+
+    <div class="input-box">
+
+      <textarea
+        id="messageInput"
+        placeholder="Message Zain AI..."
+        rows="1"
+      ></textarea>
+
+      <button class="send" id="sendButton" onclick="sendMessage()">
+        ➤
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+  let conversation = [];
+
+  const chat = document.getElementById("chat");
+  const input = document.getElementById("messageInput");
+  const sendButton = document.getElementById("sendButton");
+  const welcome = document.getElementById("welcome");
+
+  function addMessage(role, text) {
+
+    if (welcome) {
+      welcome.style.display = "none";
+    }
+
+    const row = document.createElement("div");
+    row.className = "message-row " + role;
+
+    const message = document.createElement("div");
+    message.className = "message";
+
+    message.textContent = text;
+
+    row.appendChild(message);
+    chat.appendChild(row);
+
+    chat.scrollTop = chat.scrollHeight;
+
+    return message;
+  }
+
+  function useSuggestion(text) {
+    input.value = text;
+    input.focus();
+    sendMessage();
+  }
+
+  async function sendMessage() {
+
+    const text = input.value.trim();
+
+    if (!text || sendButton.disabled) {
+      return;
+    }
+
+    addMessage("user", text);
+
+    conversation.push({
+      role: "user",
+      content: text
+    });
+
+    input.value = "";
+
+    sendButton.disabled = true;
+
+    const typingMessage = addMessage("ai", "Thinking...");
+    typingMessage.classList.add("typing");
+
+    try {
+
+      const response = await fetch("/.netlify/functions/chat", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          messages: conversation
+        })
+
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong.");
+      }
+
+      typingMessage.classList.remove("typing");
+      typingMessage.textContent = data.reply || "No response received.";
+
+      conversation.push({
+        role: "assistant",
+        content: data.reply || ""
+      });
+
+    } catch (error) {
+
+      typingMessage.classList.remove("typing");
+
+      typingMessage.textContent =
+        "Sorry, I couldn't connect to Zain AI right now.\n\nError: " +
+        error.message;
+
+    } finally {
+
+      sendButton.disabled = false;
+      input.focus();
+
+    }
+  }
+
+  function newChat() {
+
+    conversation = [];
+
+    chat.innerHTML = `
+      <div class="welcome" id="welcome">
+
+        <h1>How can I help you?</h1>
+
+        <p>
+          I can help with research, SEO, guest posting,
+          local-business prospects, outreach and learning.
+        </p>
+
+        <div class="suggestions">
+
+          <button class="suggestion" onclick="useSuggestion('Find potential guest-posting clients for me')">
+            Find guest-posting clients
+          </button>
+
+          <button class="suggestion" onclick="useSuggestion('Research a local business and identify its website and SEO opportunities')">
+            Research a local business
+          </button>
+
+          <button class="suggestion" onclick="useSuggestion('Write a short professional client outreach message')">
+            Write client outreach
+          </button>
+
+          <button class="suggestion" onclick="useSuggestion('Find SEO opportunities for a business website')">
+            Find SEO opportunities
+          </button>
+
+        </div>
+      </div>
+    `;
+
+    input.focus();
+  }
+
+  input.addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter" && !event.shiftKey) {
+
+      event.preventDefault();
+      sendMessage();
+
+    }
+
+  });
+
+</script>
+
+</body>
+</html>
